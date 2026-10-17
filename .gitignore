@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.streamlit/
+data/progress.json
+data/progress.json.tmp
+*.tmp
+
+# Локальные материалы курса (не для GitHub)
+*.pdf
+*.pptx
+_work/
+.cursor/
+*.zip

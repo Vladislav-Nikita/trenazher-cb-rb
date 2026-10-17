@@ -1,0 +1,102 @@
+{
+  "discipline": "Тестовая дисциплина",
+  "questions": [
+    {
+      "id": "t01-001",
+      "topic": "Тема А",
+      "type": "combo",
+      "stem": "Какие пункты верны?",
+      "items": {
+        "а": "первый",
+        "б": "второй",
+        "в": "третий",
+        "г": "четвёртый"
+      },
+      "options": {
+        "1": "а, б",
+        "2": "б, в",
+        "3": "а, б, в",
+        "4": "а, г"
+      },
+      "answer": "3",
+      "explanation": "Верны а, б и в.",
+      "source": "тест",
+      "origin": {"item": "т.1", "status": "confirmed"}
+    },
+    {
+      "id": "t01-002",
+      "topic": "Тема Б",
+      "type": "single",
+      "stem": "Что такое X?",
+      "options": {
+        "1": "вариант А",
+        "2": "вариант Б",
+        "3": "правильный",
+        "4": "вариант Г"
+      },
+      "answer": "3",
+      "explanation": "Правильный — вариант 3.",
+      "source": "тест",
+      "origin": {"item": "т.2", "status": "found"}
+    },
+    {
+      "id": "t01-003",
+      "topic": "Тема А",
+      "type": "yesno",
+      "stem": "Верно ли утверждение?",
+      "options": {
+        "1": "Да",
+        "2": "Нет"
+      },
+      "answer": "2",
+      "explanation": "Нет.",
+      "source": "тест",
+      "origin": {"item": "т.3", "status": "lecture", "note": "сверить"}
+    },
+    {
+      "id": "t01-004",
+      "topic": "Тема В",
+      "type": "single",
+      "stem": "Ещё вопрос",
+      "options": {
+        "1": "а",
+        "2": "б",
+        "3": "в",
+        "4": "г"
+      },
+      "answer": "1",
+      "explanation": "а",
+      "source": "тест",
+      "origin": {"item": "т.4", "status": "confirmed"}
+    },
+    {
+      "id": "t01-005",
+      "topic": "Тема Б",
+      "type": "combo",
+      "stem": "Комбо 2",
+      "items": {
+        "а": "x",
+        "б": "y",
+        "в": "z"
+      },
+      "options": {
+        "1": "а, б",
+        "2": "б, в",
+        "3": "а",
+        "4": "а, б, в"
+      },
+      "answer": "4",
+      "explanation": "все",
+      "source": "тест",
+      "origin": {"item": "т.5", "status": "disputed", "note": "спорно"}
+    }
+  ],
+  "pending": [
+    {
+      "item": "т.99",
+      "text": "без вопроса",
+      "status": "unverified",
+      "note": "не показывать"
+    }
+  ]
+}
