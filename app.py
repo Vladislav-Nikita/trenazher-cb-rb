@@ -307,10 +307,17 @@ def _mobile_touch_css() -> str:
                 min-height: 2.85rem !important;
                 font-size: 1.05rem !important;
             }
-            div[class*="st-key-qnav_"] button {
-                min-width: 2rem !important; width: 100% !important;
-                height: 2rem !important; min-height: 2rem !important;
-                font-size: 0.8rem !important; padding: 0 !important;
+            [class*="st-key-qnav_grid"] {
+                gap: 0.2rem !important;
+            }
+            div[class*="st-key-qnav_"]:not([class*="qnav_grid"]) button {
+                min-width: 1.85rem !important;
+                width: 1.85rem !important;
+                max-width: 1.85rem !important;
+                height: 1.85rem !important;
+                min-height: 1.85rem !important;
+                font-size: 0.78rem !important;
+                padding: 0 !important;
             }
             .opt-reveal {
                 font-size: 1.02rem !important;
@@ -391,19 +398,26 @@ def _session_chrome_css() -> None:
             padding: 0 0.5rem !important; font-size: 0.78rem !important;
         }}
 
-        /* Навигация по номерам — кнопки Streamlit (не <a>, иначе новая вкладка) */
-        div[class*="st-key-qnav_"] button {{
-            min-width: 1.55rem !important;
-            width: 100% !important;
+        /* Навигация по номерам — compact chips в горизонтальном wrap */
+        [class*="st-key-qnav_grid"] {{
+            gap: 0.2rem !important;
+            row-gap: 0.2rem !important;
+        }}
+        div[class*="st-key-qnav_"]:not([class*="qnav_grid"]) {{
+            width: auto !important;
+            flex: 0 0 auto !important;
+            margin: 0 !important;
+        }}
+        div[class*="st-key-qnav_"]:not([class*="qnav_grid"]) button {{
+            min-width: 1.7rem !important;
+            width: 1.7rem !important;
+            max-width: 1.7rem !important;
             height: 1.55rem !important;
             min-height: 1.55rem !important;
             padding: 0 !important;
             font-size: 0.72rem !important;
             line-height: 1 !important;
             border-radius: 4px !important;
-        }}
-        div[class*="st-key-qnav_"] {{
-            margin-bottom: 0.15rem !important;
         }}
 
         .q-stem, .q-stem p, .q-items, .q-items li, .q-items p {{
@@ -503,20 +517,15 @@ def _render_session_toolbar(questions: list[Question]) -> None:
     if nav_css:
         st.markdown(f"<style>{''.join(nav_css)}</style>", unsafe_allow_html=True)
 
-    per_row = 10
-    n = len(questions)
-    for row_start in range(0, n, per_row):
-        idxs = list(range(row_start, min(row_start + per_row, n)))
-        cols = st.columns(len(idxs))
-        for col, i in zip(cols, idxs):
-            with col:
-                st.button(
-                    str(i + 1),
-                    key=f"qnav_{i}",
-                    on_click=_go_to_index,
-                    args=(i,),
-                    use_container_width=True,
-                )
+    # Горизонтальный wrap-контейнер: на телефоне остаётся сеткой, а не столбецом.
+    with st.container(horizontal=True, wrap=True, gap="small", key="qnav_grid"):
+        for i in range(len(questions)):
+            st.button(
+                str(i + 1),
+                key=f"qnav_{i}",
+                on_click=_go_to_index,
+                args=(i,),
+            )
 
 
 def _render_status_banner(q: Question) -> None:
