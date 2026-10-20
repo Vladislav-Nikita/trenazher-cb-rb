@@ -246,90 +246,156 @@ def _finish_exam() -> None:
     st.session_state.view = "exam_result"
 
 
+def _mobile_touch_css() -> str:
+    """Стили для узкого экрана / пальца: крупные тапы, скрыть подсказки клавиатуры."""
+    return """
+        @media (max-width: 640px), (pointer: coarse) {
+            .kb-hint { display: none !important; }
+            section.main > div.block-container,
+            div.block-container,
+            [data-testid="stMainBlockContainer"] {
+                padding-left: 0.55rem !important;
+                padding-right: 0.55rem !important;
+            }
+            .q-stem, .q-stem p, .q-items, .q-items li, .q-items p {
+                font-size: 1.05rem !important; line-height: 1.4 !important;
+            }
+            div[data-testid="stRadio"] label,
+            div[data-testid="stRadio"] label p {
+                font-size: 1.05rem !important; line-height: 1.35 !important;
+            }
+            div[data-testid="stRadio"] label {
+                min-height: 2.75rem !important;
+                padding-top: 0.35rem !important;
+                padding-bottom: 0.35rem !important;
+            }
+            div[data-testid="stRadio"] [role="radiogroup"] { gap: 0.35rem !important; }
+            .st-key-btn_exit_menu button,
+            .st-key-btn_nav_prev button,
+            .st-key-btn_nav_next button {
+                min-height: 2.75rem !important; height: 2.75rem !important;
+                padding: 0 0.75rem !important; font-size: 0.95rem !important;
+            }
+            .st-key-btn_answer button,
+            .st-key-btn_exam_next button,
+            .st-key-btn_feedback_next button,
+            .st-key-btn_home_start button,
+            .st-key-btn_home_stats button {
+                min-height: 2.85rem !important;
+                font-size: 1.05rem !important;
+            }
+            .qnav a {
+                width: 2rem !important; height: 2rem !important;
+                font-size: 0.8rem !important;
+            }
+            .qnav { gap: 5px !important; }
+        }
+    """
+
+
 def _session_chrome_css() -> None:
     st.markdown(
-        """
+        f"""
         <style>
         /* Жёстко убрать верхний запас Streamlit */
-        html, body { margin: 0 !important; padding: 0 !important; }
+        html, body {{ margin: 0 !important; padding: 0 !important; }}
         header[data-testid="stHeader"],
         div[data-testid="stDecoration"],
         div[data-testid="stToolbar"],
         .stAppDeployButton,
         [data-testid="stStatusWidget"],
-        #MainMenu { display: none !important; }
+        #MainMenu {{ display: none !important; }}
         [data-testid="stAppViewContainer"],
         [data-testid="stMain"],
-        section.main {
+        section.main {{
             padding-top: 0 !important;
             margin-top: 0 !important;
-        }
-        .stApp > header { display: none !important; }
+        }}
+        .stApp > header {{ display: none !important; }}
         section.main > div.block-container,
         div.block-container,
-        [data-testid="stMainBlockContainer"] {
+        [data-testid="stMainBlockContainer"] {{
             padding-top: 0.15rem !important;
             padding-bottom: 0.5rem !important;
             padding-left: 0.75rem !important;
             padding-right: 0.75rem !important;
             max-width: 48rem !important;
-        }
-        section.main [data-testid="stVerticalBlock"] { gap: 0.2rem !important; }
-        section.main [data-testid="stHorizontalBlock"] { gap: 0.25rem !important; }
-        div[data-testid="stSidebar"] { display: none !important; }
-        button[kind="header"] { display: none !important; }
+        }}
+        section.main [data-testid="stVerticalBlock"] {{ gap: 0.2rem !important; }}
+        section.main [data-testid="stHorizontalBlock"] {{ gap: 0.25rem !important; }}
+        div[data-testid="stSidebar"] {{ display: none !important; }}
+        button[kind="header"] {{ display: none !important; }}
 
         /* Скрыть хоткеи и их iframe-обёртки */
         .st-key-kb_left, .st-key-kb_right, .st-key-kb_enter,
-        .st-key-kb_opt_1, .st-key-kb_opt_2, .st-key-kb_opt_3, .st-key-kb_opt_4 {
+        .st-key-kb_opt_1, .st-key-kb_opt_2, .st-key-kb_opt_3, .st-key-kb_opt_4 {{
             display: none !important; height: 0 !important; margin: 0 !important;
-        }
-        iframe[height="0"], iframe[height="0px"] {
+        }}
+        iframe[height="0"], iframe[height="0px"] {{
             display: none !important; height: 0 !important; border: 0 !important;
-        }
-        div:has(> iframe[height="0"]), div:has(> iframe[height="0px"]) {
+        }}
+        div:has(> iframe[height="0"]), div:has(> iframe[height="0px"]) {{
             display: none !important; height: 0 !important; margin: 0 !important;
             padding: 0 !important; min-height: 0 !important;
-        }
+        }}
 
-        .st-key-btn_exit_menu button {
+        .st-key-btn_exit_menu button,
+        .st-key-btn_nav_prev button,
+        .st-key-btn_nav_next button {{
             min-height: 1.55rem !important; height: 1.55rem !important;
             padding: 0 0.5rem !important; font-size: 0.78rem !important;
-        }
+        }}
 
         /* Плотная HTML-навигация по вопросам */
-        .qnav {
+        .qnav {{
             display: flex; flex-wrap: wrap; gap: 3px;
             margin: 0.15rem 0 0.35rem 0; align-items: center;
-        }
-        .qnav a {
+        }}
+        .qnav a {{
             display: inline-flex; align-items: center; justify-content: center;
             width: 1.55rem; height: 1.55rem; box-sizing: border-box;
             border: 1px solid rgba(128,128,128,0.55); border-radius: 4px;
             font-size: 0.72rem; text-decoration: none; color: inherit;
             background: transparent; line-height: 1;
-        }
-        .qnav a.answered {
+        }}
+        .qnav a.answered {{
             background: #2e7d32; border-color: #2e7d32; color: #fff;
-        }
-        .qnav a.current {
+        }}
+        .qnav a.current {{
             outline: 2px solid #f44336; outline-offset: 1px;
-        }
+        }}
 
         .q-stem, .q-stem p, .q-items, .q-items li, .q-items p,
-        div[data-testid="stRadio"] label, div[data-testid="stRadio"] label p {
+        div[data-testid="stRadio"] label, div[data-testid="stRadio"] label p {{
             font-size: 1.2rem !important; line-height: 1.35 !important;
-        }
-        .q-stem { margin: 0.1rem 0 0.25rem 0 !important; }
-        .q-items {
+        }}
+        .q-stem {{ margin: 0.1rem 0 0.25rem 0 !important; }}
+        .q-items {{
             margin: 0.1rem 0 0.3rem 0 !important;
             padding-left: 1.1rem !important;
-        }
-        div[data-testid="stRadio"] [role="radiogroup"] { gap: 0.1rem !important; }
-        div[data-testid="stAlert"] {
+        }}
+        div[data-testid="stRadio"] [role="radiogroup"] {{ gap: 0.1rem !important; }}
+        div[data-testid="stAlert"] {{
             padding: 0.3rem 0.6rem !important; margin: 0.15rem 0 !important;
-        }
-        div[data-testid="stAlert"] p { font-size: 1.05rem !important; }
+        }}
+        div[data-testid="stAlert"] p {{ font-size: 1.05rem !important; }}
+        {_mobile_touch_css()}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _home_chrome_css() -> None:
+    st.markdown(
+        f"""
+        <style>
+        section.main > div.block-container,
+        div.block-container,
+        [data-testid="stMainBlockContainer"] {{
+            max-width: 48rem !important;
+        }}
+        {_mobile_touch_css()}
         </style>
         """,
         unsafe_allow_html=True,
@@ -353,14 +419,23 @@ def _apply_nav_query_param() -> None:
 
 
 def _render_session_toolbar(questions: list[Question]) -> None:
-    """«В меню» слева + плотная HTML-сетка номеров (без огромных st.columns)."""
+    """«В меню» + ←/→ + плотная HTML-сетка номеров."""
     answers = st.session_state.session_answers
     cur = int(st.session_state.session_index)
+    total = len(questions)
 
-    menu_col, _ = st.columns([1, 6])
+    menu_col, prev_col, next_col, _ = st.columns([1.4, 0.55, 0.55, 4.5])
     with menu_col:
         if st.button("В меню", key="btn_exit_menu"):
             _exit_to_menu()
+            st.rerun()
+    with prev_col:
+        if st.button("←", key="btn_nav_prev", disabled=cur <= 0):
+            _navigate(-1)
+            st.rerun()
+    with next_col:
+        if st.button("→", key="btn_nav_next", disabled=cur >= total - 1):
+            _navigate(1)
             st.rerun()
 
     cells = []
@@ -528,82 +603,133 @@ def _render_session() -> None:
             st.error("Неверно")
             st.markdown(f"**Верно:** {fb['answer_key']}) {fb['answer_text']}")
         st.markdown(fb["explanation"])
-        st.caption(f"{fb['source']} · Enter — далее · Esc — меню")
+        st.caption(fb["source"])
+        st.markdown(
+            '<p class="kb-hint" style="margin:0.15rem 0;opacity:0.75;font-size:0.85rem;">'
+            "ПК: Enter — далее · Esc — меню</p>",
+            unsafe_allow_html=True,
+        )
+        if st.button("Далее", type="primary", key="btn_feedback_next", use_container_width=True):
+            _advance_after_feedback()
+            st.rerun()
         _render_kb_controls(q)
         return
 
     _render_question_body(q)
 
     choice = _current_choice(q)
-    b1, _ = st.columns([1, 5])
-    with b1:
-        if mode == Mode.EXAM:
-            if st.button("Далее", type="primary", key="btn_exam_next", disabled=choice is None):
-                if choice is not None:
-                    _submit_exam(q, choice)
-                    st.rerun()
-        else:
-            if st.button("Ответить", type="primary", key="btn_answer", disabled=choice is None):
-                if choice is not None:
-                    _submit_training(q, choice)
-                    st.rerun()
+    if mode == Mode.EXAM:
+        if st.button(
+            "Далее",
+            type="primary",
+            key="btn_exam_next",
+            disabled=choice is None,
+            use_container_width=True,
+        ):
+            if choice is not None:
+                _submit_exam(q, choice)
+                st.rerun()
+    else:
+        if st.button(
+            "Ответить",
+            type="primary",
+            key="btn_answer",
+            disabled=choice is None,
+            use_container_width=True,
+        ):
+            if choice is not None:
+                _submit_training(q, choice)
+                st.rerun()
+    st.markdown(
+        '<p class="kb-hint" style="margin:0.1rem 0;opacity:0.75;font-size:0.85rem;">'
+        "ПК: 1–4 выбор · Enter — ответить · ← → навигация · Esc — меню</p>",
+        unsafe_allow_html=True,
+    )
     # Хоткеи в конце — iframe не толкает контент вниз
     _render_kb_controls(q)
 
 
-def _render_setup_sidebar(bank: Bank) -> None:
-    with st.sidebar:
-        st.header("Настройки")
-        all_disc = bank.disciplines
-        select_all = st.checkbox("Все дисциплины", value=True)
-        if select_all:
-            disciplines = list(all_disc)
-        else:
-            disciplines = [
-                d
-                for d in all_disc
-                if st.checkbox(
-                    f"{d} ({bank.discipline_counts().get(d, 0)})",
-                    value=False,
-                    key=f"disc_{d}",
-                )
-            ]
+def _collect_disciplines(bank: Bank, key_prefix: str) -> list[str]:
+    all_disc = bank.disciplines
+    select_all = st.checkbox("Все дисциплины", value=True, key=f"{key_prefix}_all_disc")
+    if select_all:
+        return list(all_disc)
+    return [
+        d
+        for d in all_disc
+        if st.checkbox(
+            f"{d} ({bank.discipline_counts().get(d, 0)})",
+            value=False,
+            key=f"{key_prefix}_disc_{d}",
+        )
+    ]
 
-        mode_label = st.radio("Режим", options=list(MODE_LABELS.values()), index=0)
-        mode = next(m for m, label in MODE_LABELS.items() if label == mode_label)
 
-        default_n = DEFAULT_EXAM_N if mode == Mode.EXAM else 10
-        n = st.number_input("Количество вопросов", min_value=1, max_value=500, value=default_n)
+def _render_home_setup(bank: Bank) -> None:
+    """Старт сессии на главной — без необходимости открывать sidebar."""
+    st.markdown("#### Начать")
+    disciplines = _collect_disciplines(bank, "home")
 
-        if st.button("Начать", type="primary", use_container_width=True):
+    mode_label = st.radio(
+        "Режим",
+        options=list(MODE_LABELS.values()),
+        index=0,
+        key="home_mode",
+        horizontal=True,
+    )
+    mode = next(m for m, label in MODE_LABELS.items() if label == mode_label)
+
+    default_n = DEFAULT_EXAM_N if mode == Mode.EXAM else 10
+    n = st.number_input(
+        "Количество вопросов",
+        min_value=1,
+        max_value=500,
+        value=default_n,
+        key="home_n",
+    )
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Начать", type="primary", key="btn_home_start", use_container_width=True):
             if not disciplines:
                 st.error("Выберите хотя бы одну дисциплину.")
             else:
                 _start_session(bank, mode, disciplines, int(n))
                 st.rerun()
-
-        if st.button("Статистика", use_container_width=True):
+    with c2:
+        if st.button("Статистика", key="btn_home_stats", use_container_width=True):
             st.session_state.view = "stats"
             st.rerun()
 
-        st.divider()
-        if st.session_state.confirm_reset:
-            st.warning("Сбросить весь прогресс?")
-            c1, c2 = st.columns(2)
-            if c1.button("Да", use_container_width=True):
-                reset_progress()
-                st.session_state.confirm_reset = False
-                st.success("Прогресс сброшен.")
-                st.rerun()
-            if c2.button("Нет", use_container_width=True):
-                st.session_state.confirm_reset = False
-                st.rerun()
-        elif st.button("Сбросить прогресс", use_container_width=True):
-            st.session_state.confirm_reset = True
-            st.rerun()
 
+def _render_reset_controls(*, key_prefix: str) -> None:
+    if st.session_state.confirm_reset:
+        st.warning("Сбросить весь прогресс?")
+        c1, c2 = st.columns(2)
+        if c1.button("Да", key=f"{key_prefix}_reset_yes", use_container_width=True):
+            reset_progress()
+            st.session_state.confirm_reset = False
+            st.success("Прогресс сброшен.")
+            st.rerun()
+        if c2.button("Нет", key=f"{key_prefix}_reset_no", use_container_width=True):
+            st.session_state.confirm_reset = False
+            st.rerun()
+    elif st.button("Сбросить прогресс", key=f"{key_prefix}_reset", use_container_width=True):
+        st.session_state.confirm_reset = True
+        st.rerun()
+
+
+def _render_setup_sidebar(bank: Bank) -> None:
+    """Вторичные действия: сброс прогресса и справка (старт — на главной)."""
+    with st.sidebar:
+        st.header("Прогресс")
+        _render_reset_controls(key_prefix="side")
+        st.divider()
         st.caption("Тренажёр ЦБ РБ")
-        st.caption(f"В банке: {len(bank.questions)} вопросов, {len(all_disc)} дисциплин.")
+        st.caption(
+            f"В банке: {len(bank.questions)} вопросов, {len(bank.disciplines)} дисциплин."
+        )
+        st.caption("Старт сессии — на главной странице.")
 
 
 def _render_exam_result() -> None:
@@ -702,20 +828,29 @@ def _render_stats(bank: Bank) -> None:
 
 
 def _render_home(bank: Bank) -> None:
+    _home_chrome_css()
     st.title("Тренажёр: аттестат специалиста рынка ЦБ (РБ)")
     st.markdown(
-        "Выберите дисциплины и режим в боковой панели, затем нажмите **Начать**.\n\n"
         f"Порог сдачи экзамена — **{int(PASS_THRESHOLD * 100)}%**.\n\n"
-        "В сессии: **1–4** выбор, **Enter** — ответить / далее, **← →** — навигация."
+        "На телефоне: выбор варианта и кнопки **Ответить** / **Далее** / **← →**.\n\n"
+        '<span class="kb-hint">На ПК дополнительно: <strong>1–4</strong> выбор, '
+        "<strong>Enter</strong> — ответить / далее, <strong>← →</strong> — навигация, "
+        "<strong>Esc</strong> — меню.</span>",
+        unsafe_allow_html=True,
     )
     if st.session_state.get("empty_mistakes"):
         st.warning("Пока нет ошибок — сначала потренируйтесь или сдайте экзамен.")
         st.session_state.empty_mistakes = False
 
-    counts = bank.discipline_counts()
-    st.markdown("#### Банк вопросов")
-    for disc in bank.disciplines:
-        st.write(f"- {disc}: {counts.get(disc, 0)}")
+    _render_home_setup(bank)
+
+    with st.expander("Банк вопросов", expanded=False):
+        counts = bank.discipline_counts()
+        for disc in bank.disciplines:
+            st.write(f"- {disc}: {counts.get(disc, 0)}")
+
+    with st.expander("Сброс прогресса", expanded=False):
+        _render_reset_controls(key_prefix="home")
 
 
 def main() -> None:
