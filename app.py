@@ -49,7 +49,7 @@ def _md_table(rows: list[dict]) -> None:
 
 def _init_state() -> None:
     defaults = {
-        "view": "home",  # home | session | stats | exam_result
+        "view": "home",  # home | session | stats | exam_result | bank
         "session_questions": [],
         "session_index": 0,
         "session_mode": Mode.TRAINING.value,
@@ -62,6 +62,7 @@ def _init_state() -> None:
         "exam_summary": None,
         "pending_choice": None,
         "kb_nonce": 0,
+        "bank_discipline": None,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -904,6 +905,160 @@ def _render_stats(bank: Bank) -> None:
         st.rerun()
 
 
+def _bank_question_html(q: Question, num: int) -> str:
+    """Компактная строка: stem виден сразу, варианты — в <details>."""
+    status = (q.origin or {}).get("status")
+    warn = ""
+    if status == "lecture":
+        warn = ' <span class="bank-warn">· конспект</span>'
+    elif status == "disputed":
+        warn = ' <span class="bank-warn">· спорный</span>'
+
+    items_html = ""
+    if q.type == "combo" and q.items:
+        lis = "".join(
+            f"<li><strong>{html.escape(letter)})</strong> {html.escape(text)}</li>"
+            for letter, text in q.items.items()
+        )
+        items_html = f'<ul class="bank-items">{lis}</ul>'
+
+    opts: list[str] = []
+    for key, text in q.options.items():
+        if key == q.answer:
+            opts.append(
+                f'<div class="bank-opt bank-ok">'
+                f"<strong>{html.escape(key)})</strong> {html.escape(text)} ✓"
+                f"</div>"
+            )
+        else:
+            opts.append(
+                f'<div class="bank-opt">'
+                f"<strong>{html.escape(key)})</strong> {html.escape(text)}"
+                f"</div>"
+            )
+
+    explain = html.escape(q.explanation or "").replace("\n", "<br>")
+    source = html.escape(q.source or "")
+    stem = html.escape(q.stem)
+
+    return (
+        f'<details class="bank-q">'
+        f"<summary>"
+        f'<span class="bank-n">{num}.</span> '
+        f'<span class="bank-stem">{stem}</span>{warn}'
+        f"</summary>"
+        f'<div class="bank-body">'
+        f"{items_html}"
+        f'{"".join(opts)}'
+        f'<div class="bank-explain">{explain}</div>'
+        f'<div class="bank-src">{source}</div>'
+        f"</div>"
+        f"</details>"
+    )
+
+
+def _render_bank(bank: Bank) -> None:
+    """Просмотр всех вопросов по разделам с правильными ответами."""
+    _home_chrome_css()
+    st.markdown(
+        """
+        <style>
+        .bank-list { margin: 0.25rem 0 0.75rem 0; }
+        .bank-q {
+            border-bottom: 1px solid rgba(128,128,128,0.28);
+            padding: 0.15rem 0;
+        }
+        .bank-q > summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            gap: 0.35rem;
+            align-items: flex-start;
+            padding: 0.28rem 0.15rem;
+            font-size: 0.98rem;
+            line-height: 1.35;
+        }
+        .bank-q > summary::-webkit-details-marker { display: none; }
+        .bank-q > summary::before {
+            content: "▸";
+            flex: 0 0 auto;
+            opacity: 0.55;
+            margin-top: 0.05rem;
+        }
+        .bank-q[open] > summary::before { content: "▾"; }
+        .bank-n {
+            flex: 0 0 auto;
+            min-width: 1.6rem;
+            opacity: 0.55;
+            font-variant-numeric: tabular-nums;
+        }
+        .bank-stem { flex: 1 1 auto; }
+        .bank-warn { color: #c9a227; white-space: nowrap; font-size: 0.85em; }
+        .bank-body {
+            padding: 0.15rem 0.15rem 0.55rem 1.85rem;
+        }
+        .bank-items {
+            margin: 0 0 0.35rem 0; padding-left: 1.1rem;
+            font-size: 0.92rem; line-height: 1.3;
+        }
+        .bank-opt {
+            padding: 0.22rem 0.45rem;
+            margin: 0.12rem 0;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-size: 0.92rem;
+            line-height: 1.3;
+        }
+        .bank-opt.bank-ok {
+            background: rgba(46, 125, 50, 0.22);
+            border-color: #2e7d32;
+        }
+        .bank-explain {
+            margin-top: 0.4rem;
+            font-size: 0.9rem;
+            line-height: 1.35;
+            opacity: 0.92;
+        }
+        .bank-src {
+            margin-top: 0.2rem;
+            font-size: 0.78rem;
+            opacity: 0.65;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.subheader("Банк вопросов")
+    counts = bank.discipline_counts()
+    options = list(bank.disciplines)
+    labels = {d: f"{d} ({counts.get(d, 0)})" for d in options}
+
+    saved = st.session_state.get("bank_discipline")
+    index = options.index(saved) if saved in options else 0
+    chosen = st.selectbox(
+        "Раздел",
+        options=options,
+        index=index,
+        format_func=lambda d: labels[d],
+        key="bank_disc_select",
+    )
+    st.session_state.bank_discipline = chosen
+
+    pool = bank.by_discipline([chosen])
+    st.caption(f"Вопросов в разделе: {len(pool)} · нажмите на вопрос, чтобы увидеть варианты")
+
+    chunks: list[str] = ['<div class="bank-list">']
+    for num, q in enumerate(pool, start=1):
+        chunks.append(_bank_question_html(q, num))
+    chunks.append("</div>")
+    st.markdown("".join(chunks), unsafe_allow_html=True)
+
+    if st.button("Назад", key="btn_bank_back"):
+        st.session_state.view = "home"
+        st.rerun()
+
+
 def _render_home(bank: Bank) -> None:
     _home_chrome_css()
     st.title("Тренажёр: аттестат специалиста рынка ЦБ (РБ)")
@@ -926,6 +1081,13 @@ def _render_home(bank: Bank) -> None:
         counts = bank.discipline_counts()
         for disc in bank.disciplines:
             st.write(f"- {disc}: {counts.get(disc, 0)}")
+        if st.button(
+            "Смотреть вопросы и ответы",
+            key="btn_open_bank",
+            use_container_width=True,
+        ):
+            st.session_state.view = "bank"
+            st.rerun()
 
     with st.expander("Сброс прогресса", expanded=False):
         _render_reset_controls(key_prefix="home")
@@ -958,6 +1120,10 @@ def main() -> None:
         _render_setup_sidebar(bank)
         st.title("Тренажёр ЦБ РБ")
         _render_stats(bank)
+    elif view == "bank":
+        _render_setup_sidebar(bank)
+        st.title("Тренажёр ЦБ РБ")
+        _render_bank(bank)
     else:
         _render_setup_sidebar(bank)
         _render_home(bank)
