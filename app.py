@@ -251,30 +251,52 @@ def _mobile_touch_css() -> str:
     return """
         @media (max-width: 640px), (pointer: coarse) {
             .kb-hint { display: none !important; }
+            /* Убрать пустой верх: шапка Streamlit + запас контейнера */
+            header[data-testid="stHeader"],
+            .stApp > header,
+            div[data-testid="stDecoration"],
+            div[data-testid="stToolbar"] {
+                display: none !important;
+                height: 0 !important;
+                min-height: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+            [data-testid="stAppViewContainer"],
+            [data-testid="stMain"],
+            section.main,
+            .stApp {
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
             section.main > div.block-container,
             div.block-container,
             [data-testid="stMainBlockContainer"] {
+                padding-top: 0 !important;
+                margin-top: 0 !important;
                 padding-left: 0.55rem !important;
                 padding-right: 0.55rem !important;
             }
             .q-stem, .q-stem p, .q-items, .q-items li, .q-items p {
                 font-size: 1.05rem !important; line-height: 1.4 !important;
             }
-            div[data-testid="stRadio"] label,
-            div[data-testid="stRadio"] label p {
-                font-size: 1.05rem !important; line-height: 1.35 !important;
-            }
-            div[data-testid="stRadio"] label {
-                min-height: 2.75rem !important;
-                padding-top: 0.35rem !important;
-                padding-bottom: 0.35rem !important;
-            }
-            div[data-testid="stRadio"] [role="radiogroup"] { gap: 0.35rem !important; }
-            .st-key-btn_exit_menu button,
-            .st-key-btn_nav_prev button,
-            .st-key-btn_nav_next button {
-                min-height: 2.75rem !important; height: 2.75rem !important;
+            .st-key-btn_exit_menu button {
+                min-height: 2.4rem !important; height: 2.4rem !important;
                 padding: 0 0.75rem !important; font-size: 0.95rem !important;
+            }
+            button[kind="secondary"].opt-choice,
+            button[kind="primary"].opt-choice,
+            div[class*="st-key-optbtn_"] button {
+                min-height: 2.85rem !important;
+                font-size: 1.02rem !important;
+                white-space: normal !important;
+                text-align: left !important;
+                justify-content: flex-start !important;
+                padding: 0.55rem 0.75rem !important;
             }
             .st-key-btn_answer button,
             .st-key-btn_exam_next button,
@@ -284,11 +306,15 @@ def _mobile_touch_css() -> str:
                 min-height: 2.85rem !important;
                 font-size: 1.05rem !important;
             }
-            .qnav a {
-                width: 2rem !important; height: 2rem !important;
-                font-size: 0.8rem !important;
+            div[class*="st-key-qnav_"] button {
+                min-width: 2rem !important; width: 100% !important;
+                height: 2rem !important; min-height: 2rem !important;
+                font-size: 0.8rem !important; padding: 0 !important;
             }
-            .qnav { gap: 5px !important; }
+            .opt-reveal {
+                font-size: 1.02rem !important;
+                padding: 0.55rem 0.7rem !important;
+            }
         }
     """
 
@@ -304,22 +330,42 @@ def _session_chrome_css() -> None:
         div[data-testid="stToolbar"],
         .stAppDeployButton,
         [data-testid="stStatusWidget"],
-        #MainMenu {{ display: none !important; }}
+        #MainMenu {{
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }}
         [data-testid="stAppViewContainer"],
         [data-testid="stMain"],
-        section.main {{
+        section.main,
+        .stApp {{
             padding-top: 0 !important;
             margin-top: 0 !important;
         }}
-        .stApp > header {{ display: none !important; }}
+        .stApp > header {{
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+        }}
         section.main > div.block-container,
         div.block-container,
         [data-testid="stMainBlockContainer"] {{
-            padding-top: 0.15rem !important;
+            padding-top: 0 !important;
             padding-bottom: 0.5rem !important;
             padding-left: 0.75rem !important;
             padding-right: 0.75rem !important;
             max-width: 48rem !important;
+        }}
+        /* Убрать «зарезервированный» верх под скрытую шапку */
+        section.main > div {{ padding-top: 0 !important; }}
+        .stApp [data-testid="stHeader"] {{
+            height: 0 !important;
+            position: fixed !important;
+            top: 0 !important;
         }}
         section.main [data-testid="stVerticalBlock"] {{ gap: 0.2rem !important; }}
         section.main [data-testid="stHorizontalBlock"] {{ gap: 0.25rem !important; }}
@@ -339,34 +385,27 @@ def _session_chrome_css() -> None:
             padding: 0 !important; min-height: 0 !important;
         }}
 
-        .st-key-btn_exit_menu button,
-        .st-key-btn_nav_prev button,
-        .st-key-btn_nav_next button {{
+        .st-key-btn_exit_menu button {{
             min-height: 1.55rem !important; height: 1.55rem !important;
             padding: 0 0.5rem !important; font-size: 0.78rem !important;
         }}
 
-        /* Плотная HTML-навигация по вопросам */
-        .qnav {{
-            display: flex; flex-wrap: wrap; gap: 3px;
-            margin: 0.15rem 0 0.35rem 0; align-items: center;
+        /* Навигация по номерам — кнопки Streamlit (не <a>, иначе новая вкладка) */
+        div[class*="st-key-qnav_"] button {{
+            min-width: 1.55rem !important;
+            width: 100% !important;
+            height: 1.55rem !important;
+            min-height: 1.55rem !important;
+            padding: 0 !important;
+            font-size: 0.72rem !important;
+            line-height: 1 !important;
+            border-radius: 4px !important;
         }}
-        .qnav a {{
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 1.55rem; height: 1.55rem; box-sizing: border-box;
-            border: 1px solid rgba(128,128,128,0.55); border-radius: 4px;
-            font-size: 0.72rem; text-decoration: none; color: inherit;
-            background: transparent; line-height: 1;
-        }}
-        .qnav a.answered {{
-            background: #2e7d32; border-color: #2e7d32; color: #fff;
-        }}
-        .qnav a.current {{
-            outline: 2px solid #f44336; outline-offset: 1px;
+        div[class*="st-key-qnav_"] {{
+            margin-bottom: 0.15rem !important;
         }}
 
-        .q-stem, .q-stem p, .q-items, .q-items li, .q-items p,
-        div[data-testid="stRadio"] label, div[data-testid="stRadio"] label p {{
+        .q-stem, .q-stem p, .q-items, .q-items li, .q-items p {{
             font-size: 1.2rem !important; line-height: 1.35 !important;
         }}
         .q-stem {{ margin: 0.1rem 0 0.25rem 0 !important; }}
@@ -374,7 +413,42 @@ def _session_chrome_css() -> None:
             margin: 0.1rem 0 0.3rem 0 !important;
             padding-left: 1.1rem !important;
         }}
-        div[data-testid="stRadio"] [role="radiogroup"] {{ gap: 0.1rem !important; }}
+
+        /* Варианты: вся площадь кнопки кликабельна */
+        div[class*="st-key-optbtn_"] button {{
+            width: 100% !important;
+            white-space: normal !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+            align-items: flex-start !important;
+            min-height: 2.5rem !important;
+            height: auto !important;
+            padding: 0.5rem 0.75rem !important;
+            line-height: 1.35 !important;
+            font-size: 1.1rem !important;
+        }}
+        div[class*="st-key-optbtn_"] {{
+            margin-bottom: 0.2rem !important;
+        }}
+
+        /* Подсветка после ответа в тренировке */
+        .opt-reveal {{
+            padding: 0.45rem 0.65rem;
+            margin: 0.2rem 0;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-size: 1.1rem;
+            line-height: 1.35;
+        }}
+        .opt-reveal.opt-correct {{
+            background: rgba(46, 125, 50, 0.22);
+            border-color: #2e7d32;
+        }}
+        .opt-reveal.opt-wrong {{
+            background: rgba(198, 40, 40, 0.18);
+            border-color: #c62828;
+        }}
+
         div[data-testid="stAlert"] {{
             padding: 0.3rem 0.6rem !important; margin: 0.15rem 0 !important;
         }}
@@ -402,52 +476,46 @@ def _home_chrome_css() -> None:
     )
 
 
-def _apply_nav_query_param() -> None:
-    """Переход по клику на номер: ?q=N (1-based)."""
-    raw = st.query_params.get("q")
-    if raw is None:
-        return
-    try:
-        num = int(raw)
-    except (TypeError, ValueError):
-        st.query_params.clear()
-        return
-    questions = st.session_state.get("session_questions") or []
-    if questions and 1 <= num <= len(questions):
-        _go_to_index(num - 1)
-    st.query_params.clear()
-
-
 def _render_session_toolbar(questions: list[Question]) -> None:
-    """«В меню» + ←/→ + плотная HTML-сетка номеров."""
+    """«В меню» + сетка номеров (кнопки в той же сессии). ←/→ — хоткеи на ПК."""
     answers = st.session_state.session_answers
     cur = int(st.session_state.session_index)
-    total = len(questions)
 
-    menu_col, prev_col, next_col, _ = st.columns([1.4, 0.55, 0.55, 4.5])
-    with menu_col:
-        if st.button("В меню", key="btn_exit_menu"):
-            _exit_to_menu()
-            st.rerun()
-    with prev_col:
-        if st.button("←", key="btn_nav_prev", disabled=cur <= 0):
-            _navigate(-1)
-            st.rerun()
-    with next_col:
-        if st.button("→", key="btn_nav_next", disabled=cur >= total - 1):
-            _navigate(1)
-            st.rerun()
+    if st.button("В меню", key="btn_exit_menu"):
+        _exit_to_menu()
+        st.rerun()
 
-    cells = []
+    # Подсветка: отвеченные — зелёные, текущий — красная обводка
+    nav_css: list[str] = []
     for i, q in enumerate(questions):
-        classes = []
         if q.id in answers:
-            classes.append("answered")
+            nav_css.append(
+                f"div.st-key-qnav_{i} button{{"
+                "background:#2e7d32!important;border-color:#2e7d32!important;"
+                "color:#fff!important;}}"
+            )
         if i == cur:
-            classes.append("current")
-        cls = (" " + " ".join(classes)) if classes else ""
-        cells.append(f'<a class="{cls.strip()}" href="?q={i + 1}">{i + 1}</a>')
-    st.markdown(f'<div class="qnav">{"".join(cells)}</div>', unsafe_allow_html=True)
+            nav_css.append(
+                f"div.st-key-qnav_{i} button{{"
+                "outline:2px solid #f44336!important;outline-offset:1px;}}"
+            )
+    if nav_css:
+        st.markdown(f"<style>{''.join(nav_css)}</style>", unsafe_allow_html=True)
+
+    per_row = 10
+    n = len(questions)
+    for row_start in range(0, n, per_row):
+        idxs = list(range(row_start, min(row_start + per_row, n)))
+        cols = st.columns(len(idxs))
+        for col, i in zip(cols, idxs):
+            with col:
+                st.button(
+                    str(i + 1),
+                    key=f"qnav_{i}",
+                    on_click=_go_to_index,
+                    args=(i,),
+                    use_container_width=True,
+                )
 
 
 def _render_status_banner(q: Question) -> None:
@@ -460,7 +528,20 @@ def _render_status_banner(q: Question) -> None:
         st.warning("Спорный вопрос — сверить с источником.")
 
 
-def _render_question_body(q: Question) -> str | None:
+def _render_revealed_options(q: Question) -> None:
+    """Все варианты после ответа: верный — зелёный, остальные — красные."""
+    rows: list[str] = []
+    for key, text in q.options.items():
+        cls = "opt-correct" if key == q.answer else "opt-wrong"
+        rows.append(
+            f'<div class="opt-reveal {cls}">'
+            f"<strong>{html.escape(key)})</strong> {html.escape(text)}"
+            f"</div>"
+        )
+    st.markdown("".join(rows), unsafe_allow_html=True)
+
+
+def _render_question_body(q: Question) -> None:
     st.markdown(
         f'<div class="q-stem">{html.escape(q.stem)}</div>',
         unsafe_allow_html=True,
@@ -474,9 +555,7 @@ def _render_question_body(q: Question) -> str | None:
         )
         st.markdown(f'<ul class="q-items">{items_html}</ul>', unsafe_allow_html=True)
 
-    option_keys = list(q.options.keys())
     rkey = _radio_key(q)
-
     pending = st.session_state.get("pending_choice")
     if pending is not None and pending in q.options:
         st.session_state[rkey] = pending
@@ -486,16 +565,18 @@ def _render_question_body(q: Question) -> str | None:
         if saved in q.options:
             st.session_state[rkey] = saved
 
-    radio_kw: dict = {
-        "label": "Ответ",
-        "options": option_keys,
-        "format_func": lambda k: f"{k}) {q.options[k]}",
-        "key": rkey,
-        "label_visibility": "collapsed",
-    }
-    if rkey not in st.session_state:
-        radio_kw["index"] = None
-    return st.radio(**radio_kw)
+    current = _current_choice(q)
+    idx = int(st.session_state.session_index)
+    for key, text in q.options.items():
+        selected = current == key
+        st.button(
+            f"{key}) {text}",
+            key=f"optbtn_{q.id}_{idx}_{key}",
+            use_container_width=True,
+            type="primary" if selected else "secondary",
+            on_click=_set_choice_callback,
+            args=(key,),
+        )
 
 
 def _bind_keyboard_shortcuts(shortcuts: dict[str, str]) -> None:
@@ -578,7 +659,6 @@ def _render_session() -> None:
         return
 
     _session_chrome_css()
-    _apply_nav_query_param()
     _render_session_toolbar(questions)
 
     idx = int(st.session_state.session_index)
@@ -594,14 +674,11 @@ def _render_session() -> None:
             f'<div class="q-stem">{html.escape(q.stem)}</div>',
             unsafe_allow_html=True,
         )
-        chosen = st.session_state.session_answers.get(q.id)
-        if chosen is not None:
-            st.caption(f"Ваш ответ: {chosen}) {q.options.get(chosen, '')}")
+        _render_revealed_options(q)
         if fb["ok"]:
             st.success("Верно")
         else:
             st.error("Неверно")
-            st.markdown(f"**Верно:** {fb['answer_key']}) {fb['answer_text']}")
         st.markdown(fb["explanation"])
         st.caption(fb["source"])
         st.markdown(
@@ -642,7 +719,7 @@ def _render_session() -> None:
                 st.rerun()
     st.markdown(
         '<p class="kb-hint" style="margin:0.1rem 0;opacity:0.75;font-size:0.85rem;">'
-        "ПК: 1–4 выбор · Enter — ответить · ← → навигация · Esc — меню</p>",
+        "ПК: 1–4 выбор · Enter — ответить · ← → или номера · Esc — меню</p>",
         unsafe_allow_html=True,
     )
     # Хоткеи в конце — iframe не толкает контент вниз
@@ -832,7 +909,8 @@ def _render_home(bank: Bank) -> None:
     st.title("Тренажёр: аттестат специалиста рынка ЦБ (РБ)")
     st.markdown(
         f"Порог сдачи экзамена — **{int(PASS_THRESHOLD * 100)}%**.\n\n"
-        "На телефоне: выбор варианта и кнопки **Ответить** / **Далее** / **← →**.\n\n"
+        "На телефоне: тап по варианту (вся площадь), **Ответить** / **Далее**, "
+        "переход между вопросами — по номерам сверху.\n\n"
         '<span class="kb-hint">На ПК дополнительно: <strong>1–4</strong> выбор, '
         "<strong>Enter</strong> — ответить / далее, <strong>← →</strong> — навигация, "
         "<strong>Esc</strong> — меню.</span>",
