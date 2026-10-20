@@ -1,4 +1,4 @@
-# Полная инициализация тренажёра (venv + зависимости).
+﻿# Полная инициализация тренажёра (venv + зависимости).
 # Запуск из корня репозитория:
 #   powershell -ExecutionPolicy Bypass -File .\init.ps1
 #   powershell -ExecutionPolicy Bypass -File .\init.ps1 -Start
@@ -48,6 +48,8 @@ Write-Host "Устанавливаю зависимости из requirements.tx
 & $venvPip install -r requirements.txt
 
 if ($Test) {
+    Write-Host "Устанавливаю dev-зависимости из requirements-dev.txt ..." -ForegroundColor Cyan
+    & $venvPip install -r requirements-dev.txt
     Write-Host "Запускаю pytest ..." -ForegroundColor Cyan
     & $venvPython -m pytest -q
 }

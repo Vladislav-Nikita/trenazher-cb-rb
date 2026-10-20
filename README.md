@@ -16,7 +16,7 @@
 powershell -ExecutionPolicy Bypass -File .\init.ps1
 ```
 
-Скрипт создаёт `.venv`, ставит зависимости из `requirements.txt`.
+Скрипт создаёт `.venv`, ставит зависимости из `requirements.txt` (только Streamlit). Для тестов (`-Test`) дополнительно ставится `requirements-dev.txt` (pytest).
 
 Запуск тренажёра сразу после инициализации:
 
@@ -38,6 +38,21 @@ streamlit run app.py
 ```
 
 Откроется браузер: http://localhost:8501
+
+## Облако (доступ с iPhone)
+
+Можно открыть тренажёр с телефона без домашнего ПК через [Streamlit Community Cloud](https://share.streamlit.io):
+
+1. Запушьте актуальный `main` в GitHub: https://github.com/Vladislav-Nikita/trenazher-cb-rb
+2. Войдите на [share.streamlit.io](https://share.streamlit.io) через GitHub.
+3. **New app** → репозиторий `Vladislav-Nikita/trenazher-cb-rb`, ветка `main`, Main file path: `app.py` → **Deploy**.
+4. Откройте выданный URL (`https://….streamlit.app`) в Safari на iPhone; при желании добавьте на экран «Домой».
+
+Замечания:
+
+- Первый заход после простоя может занять 30–60+ секунд (бесплатный тариф «засыпает»).
+- Прогресс в облаке **отдельный** от локального `data/progress.json` и может сбрасываться при перезапуске контейнера.
+- Если репозиторий приватный — в Cloud дайте доступ к private repos (на бесплатном тарифе — один private app).
 
 ## Клонирование на другом компьютере
 
@@ -83,7 +98,8 @@ questions/          # банк d*.json (+ review/)
 scripts/            # render_review.py, shuffle_options.py
 knowledge/          # карточки тем (опционально)
 tests/              # pytest
-requirements.txt
+requirements.txt    # runtime (Streamlit / Community Cloud)
+requirements-dev.txt # + pytest для локальных тестов
 data/               # progress.json (локально, в .gitignore)
 ```
 
